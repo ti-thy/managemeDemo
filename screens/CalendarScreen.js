@@ -16,7 +16,6 @@ const CalendarScreen = ({ route, navigation }) => {
       const userEvents = await fetchEvents(userId);
       setEvents(userEvents);
 
-      // Mark dates on the calendar
       const marked = {};
       userEvents.forEach(event => {
         const date = event.start.split('T')[0];
@@ -24,14 +23,20 @@ const CalendarScreen = ({ route, navigation }) => {
       });
       setMarkedDates(marked);
 
-      // Detect clashes
       const clashes = detectClashes(userEvents);
       if (clashes.length > 0) {
+        const clashDetails = clashes.map((clash, index) => {
+          const event1 = clash[0];
+          const event2 = clash[1];
+          return `Clash ${index + 1}: ${event1.summary} (${event1.start} - ${event1.end}) vs ${event2.summary} (${event2.start} - ${event2.end})`;
+        }).join('\n');
+        
         Alert.alert(
-          'Event Clash Detected',
-          'Some events are clashing. Please resolve them manually.',
+          'Event Clashes Detected',
+          `The following events are clashing:\n${clashDetails}`,
           [
             { text: 'Resolve', onPress: () => navigation.navigate('ClashResolution', { clashes }) },
+            { text: 'View in Drawer', onPress: () => navigation.navigate('ClashDrawer', { clashes }) },
             { text: 'Ignore', onPress: () => {} },
           ]
         );
@@ -45,9 +50,18 @@ const CalendarScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Animatable.View animation="fadeIn" duration={1000}>
-        <Text style={styles.title}>
-          <Icon name="calendar" size={30} color="#4CAF50" /> Event Calendar
-        </Text>
+        <View style={styles.header}>
+          <Icon
+            name="menu"
+            size={30}
+            color="#4CAF50"
+            onPress={() => navigation.openDrawer()}
+            style={styles.menuIcon}
+          />
+          <Text style={styles.title}>
+            <Icon name="calendar" size={30} color="#4CAF50" /> Event Calendar
+          </Text>
+        </View>
         <Calendar markedDates={markedDates} />
         <ScrollView style={styles.eventList}>
           {events.map(event => (
@@ -61,7 +75,9 @@ const CalendarScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  menuIcon: { marginRight: 10 },
+  title: { fontSize: 24, fontWeight: 'bold', flexDirection: 'row', alignItems: 'center' },
   eventList: { marginTop: 20 },
 });
 
