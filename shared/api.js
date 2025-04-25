@@ -32,18 +32,24 @@ export const fetchEvents = async (userId) => {
 
 export const detectClashes = (events) => {
   const clashes = [];
-  for (let i = 0; i < events.length; i++) {
-    for (let j = i + 1; j < events.length; j++) {
-      const event1 = events[i];
-      const event2 = events[j];
+  const sortedEvents = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+  for (let i = 0; i < sortedEvents.length - 1; i++) {
+    for (let j = i + 1; j < sortedEvents.length; j++) {
+      const event1 = sortedEvents[i];
+      const event2 = sortedEvents[j];
+      
       const start1 = new Date(event1.start);
       const end1 = new Date(event1.end);
       const start2 = new Date(event2.start);
       const end2 = new Date(event2.end);
+      
       if (start1 < end2 && start2 < end1) {
         clashes.push([event1, event2]);
       }
     }
   }
+  
   return clashes;
 };
+  
