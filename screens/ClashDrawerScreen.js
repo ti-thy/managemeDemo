@@ -1,11 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'; // Add TouchableOpacity
 import { Card } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { format } from 'date-fns';
 
 const ClashDrawerScreen = ({ route, navigation }) => {
   const { clashes } = route.params || { clashes: [] };
+
+  // Add function to handle navigation to ClashResolutionScreen
+  const handleResolveClash = (clash) => {
+    navigation.navigate('ClashResolution', { clashes: [clash] });
+  };
 
   return (
     <View style={styles.container}>
@@ -43,6 +48,13 @@ const ClashDrawerScreen = ({ route, navigation }) => {
                 <Text style={styles.eventText}>
                   Source: {clash[1].email}
                 </Text>
+                {/* Add Resolve Button */}
+                <TouchableOpacity
+                  style={styles.resolveButton}
+                  onPress={() => handleResolveClash(clash)}
+                >
+                  <Text style={styles.resolveButtonText}>Resolve This Clash</Text>
+                </TouchableOpacity>
               </Card>
             ))}
           </ScrollView>
@@ -112,6 +124,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 5,
+  },
+  // Add styles for the Resolve button
+  resolveButton: {
+    backgroundColor: '#FFCA28',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  resolveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
 
